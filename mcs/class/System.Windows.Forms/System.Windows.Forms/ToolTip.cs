@@ -163,7 +163,7 @@ namespace System.Windows.Forms {
 				if (eh != null)
 					eh (this, e);
 				else
-					e.ToolTipSize = ThemeEngine.Current.ToolTipSize (this, Text);
+					e.ToolTipSize = ToolTip.GetToolTipSize(this, Text);// ThemeEngine.Current.ToolTipSize (this, Text);
 			}
 
 			private void ToolTipWindow_VisibleChanged(object sender, EventArgs e) {
@@ -614,7 +614,7 @@ namespace System.Windows.Forms {
 			// make sure that tooltip_window.Text gets updated if it's being shown,
 			// or show the tooltip for it if is not
 			if (active_control == control && caption != null && state == TipState.Show) {
-				Size size = ThemeEngine.Current.ToolTipSize(tooltip_window, caption);
+				Size size = ToolTip.GetToolTipSize(tooltip_window, caption);//ThemeEngine.Current.ToolTipSize(tooltip_window, caption);
 				tooltip_window.Width = size.Width;
 				tooltip_window.Height = size.Height;
 				tooltip_window.Text = caption;
@@ -892,7 +892,7 @@ namespace System.Windows.Forms {
 
 		private void tooltip_window_Popup (object sender, PopupEventArgs e)
 		{
-			e.ToolTipSize = ThemeEngine.Current.ToolTipSize (tooltip_window, tooltip_window.Text);
+			e.ToolTipSize = ToolTip.GetToolTipSize(tooltip_window, tooltip_window.Text);// ThemeEngine.Current.ToolTipSize (tooltip_window, tooltip_window.Text);
 			OnPopup (e);
 		}
 
@@ -1002,5 +1002,18 @@ namespace System.Windows.Forms {
 			remove { Events.RemoveHandler (DrawEvent, value); }
 		}
 		#endregion
+
+		internal static Size GetToolTipSize(ToolTip.ToolTipWindow tooltip_window, string text)
+        {
+            string str = text == null ? string.Empty : text;
+            if (!string.IsNullOrEmpty(str))
+            {
+                str = str.Replace(" ", "W").Replace("р", "p").Replace("Р", "P");
+            }
+
+            Size result = ThemeEngine.Current.ToolTipSize(tooltip_window, str);
+            result = new Size(result.Width + 6, result.Height + 4);
+            return result;
+        }
 	}
 }

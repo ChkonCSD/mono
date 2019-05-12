@@ -207,7 +207,7 @@ namespace System.Windows.Forms
 		{
 			// Ensure that at least one line is going to get displayed.
 			// Line limit does not ensure that despite its description.
-			if (button.Font != null && button.Font.Height > 0)
+			if (button.Font != null)// && button.Font.Height > 0)
 				textBounds.Height = Math.Max (textBounds.Height, button.Font.Height);
 
 			if (button.Enabled)
@@ -2665,6 +2665,7 @@ namespace System.Windows.Forms
 
 			for (int i = first; i <= lastvisibleindex; i++) {					
 				ListViewItem item = control.GetItemAtDisplayIndex (i);
+				if (item == null) continue;
 				if (clip.IntersectsWith (item.Bounds)) {
 					bool owner_draw = false;
 					if (control.OwnerDraw)

@@ -1543,6 +1543,8 @@ namespace System.Windows.Forms
 
 		void SetItemLocation (int index, int x, int y, int row, int col)
 		{
+			try
+			{
 			Point old_location = items_location [index];
 			if (old_location.X == x && old_location.Y == y)
 				return;
@@ -1554,6 +1556,12 @@ namespace System.Windows.Forms
 			// Initial position matches item's position in ListViewItemCollection
 			//
 			reordered_items_indices [index] = index;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine (e.Message);
+				Console.WriteLine (e.StackTrace);
+			}
 		}
 
 
@@ -2062,7 +2070,16 @@ namespace System.Windows.Forms
 		{
 			if (virtual_mode)
 				return display_index; // no reordering in virtual mode.
+			try
+			{
 			return reordered_items_indices [display_index];
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine (e.Message);
+				Console.WriteLine (e.StackTrace);
+				return null;
+			}
 		}
 
 		internal ListViewItem GetItemAtDisplayIndex (int display_index)
@@ -2290,8 +2307,11 @@ namespace System.Windows.Forms
 				int start = Math.Min (start_index, index);
 				int end = Math.Max (start_index, index);
 				if (View == View.Details) {
-					for (int i = start; i <= end; i++)
-						list.Add (GetItemAtDisplayIndex (i));
+					for (int i = start; i <= end; i++) {
+						ListViewItem lvi = GetItemAtDisplayIndex (i);
+						if (lvi != null)
+							list.Add (lvi);
+					}
 				} else {
 					ItemMatrixLocation start_item_matrix_location = items_matrix_location [start];
 					ItemMatrixLocation end_item_matrix_location = items_matrix_location [end];
@@ -2304,13 +2324,16 @@ namespace System.Windows.Forms
 						ItemMatrixLocation item_matrix_loc = items_matrix_location [i];
 
 						if (item_matrix_loc.Row >= top && item_matrix_loc.Row <= bottom &&
-								item_matrix_loc.Col >= left && item_matrix_loc.Col <= right)
-							list.Add (GetItemAtDisplayIndex (i));
+							item_matrix_loc.Col >= left && item_matrix_loc.Col <= right) {
+								ListViewItem lvi = GetItemAtDisplayIndex (i);
+								if (lvi != null)
+									list.Add (lvi);
+							}
 					}
 				}
 				SelectItems (list);
 			} else if (ctrl_pressed) {
-				item.Selected = !item.Selected;
+				if (item != null) item.Selected = !item.Selected;
 				selection_start = item;
 			} else {
 				if (!reselect) {
@@ -2322,7 +2345,7 @@ namespace System.Windows.Forms
 					}
 				} else {
 					SelectedItems.Clear ();
-					item.Selected = true;
+					if (item != null) item.Selected = true;
 				}
 				selection_start = item;
 			}
@@ -2411,8 +2434,11 @@ namespace System.Windows.Forms
 
 			if (MultiSelect)
 				UpdateMultiSelection (display_index, true);
-			else if (!GetItemAtDisplayIndex (display_index).Selected)
-				GetItemAtDisplayIndex (display_index).Selected = true;
+			else {
+				ListViewItem lvi = GetItemAtDisplayIndex (display_index);
+				if (lvi != null && !lvi.Selected)
+					lvi.Selected = true;
+			}
 
 			SetFocusedItem (display_index);
 			EnsureVisible (GetItemIndex (display_index)); // Index in Items collection, not display index
@@ -2537,8 +2563,12 @@ namespace System.Windows.Forms
 
 			bool BoxIntersectsText (int index)
 			{
-				Rectangle r = owner.GetItemAtDisplayIndex (index).TextBounds;
-				return BoxSelectRectangle.IntersectsWith (r);
+				ListViewItem lvi = owner.GetItemAtDisplayIndex (index);
+				if (lvi != null) {
+					Rectangle r = lvi.TextBounds;
+					return BoxSelectRectangle.IntersectsWith (r);
+				}
+				return false;
 			}
 
 			ArrayList BoxSelectedItems {
@@ -2552,8 +2582,11 @@ namespace System.Windows.Forms
 						else
 							intersects = BoxIntersectsItem (i);
 
-						if (intersects)
-							result.Add (owner.GetItemAtDisplayIndex (i));
+						if (intersects) {
+							ListViewItem lvi = owner.GetItemAtDisplayIndex (i);
+							if (lvi != null)
+								result.Add (lvi);
+						}
 					}
 					return result;
 				}
@@ -2621,7 +2654,7 @@ namespace System.Windows.Forms
 
 					// Actual item in 'i' position
 					ListViewItem item = owner.GetItemAtDisplayIndex (i);
-
+					if (item == null) break;
 					if (item.CheckRectReal.Contains (pt)) {
 						// Don't modify check state if we have only one image
 						// and if we are in 1.1 profile only take into account
@@ -3293,10 +3326,16 @@ namespace System.Windows.Forms
 		
 		private void SetFocusedItem (int display_index)
 		{
-			if (display_index != -1)
-				GetItemAtDisplayIndex (display_index).Focused = true;
-			else if (focused_item_index != -1 && focused_item_index < items.Count) // Previous focused item
-				GetItemAtDisplayIndex (focused_item_index).Focused = false;
+			if (display_index != -1) {
+				ListViewItem lvi = GetItemAtDisplayIndex (display_index);
+				if (lvi != null)
+					lvi.Focused = true;
+			}
+			else if (focused_item_index != -1 && focused_item_index < items.Count) {// Previous focused item
+				ListViewItem lvi = GetItemAtDisplayIndex (focused_item_index);
+				if (lvi != null)
+					lvi.Focused = false;
+			}
 			focused_item_index = display_index;
 			if (display_index == -1)
 				OnUIAFocusedItemChanged ();
@@ -3667,6 +3706,8 @@ namespace System.Windows.Forms
 			if (view_rect.Contains (bounds))
 				return;
 
+			try
+			{
 			if (View != View.Details) {
 				if (bounds.Left < 0)
 					h_scroll.Value += bounds.Left;
@@ -3674,11 +3715,25 @@ namespace System.Windows.Forms
 				else if (this.RightToLeftLayout && bounds.Right > view_rect.Right)
 					h_scroll.Value += (bounds.Right - view_rect.Right);
 			}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine (e.Message);
+				Console.WriteLine (e.StackTrace);
+			}
 
+			try
+			{
 			if (bounds.Top < view_rect.Y)
 				v_scroll.Value += bounds.Top - view_rect.Y;
 			else if (bounds.Bottom > view_rect.Bottom)
 				v_scroll.Value += (bounds.Bottom - view_rect.Bottom);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine (e.Message);
+				Console.WriteLine (e.StackTrace);
+			}
 		}
 
 		public ListViewItem FindItemWithText (string text)

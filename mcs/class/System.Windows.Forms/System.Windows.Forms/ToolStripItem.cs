@@ -1201,7 +1201,7 @@ namespace System.Windows.Forms
 		
 		protected virtual void OnParentChanged (ToolStrip oldParent, ToolStrip newParent)
 		{
-			this.text_size = TextRenderer.MeasureText (this.Text == null ? string.Empty : this.text, this.Font, Size.Empty, TextFormatFlags.HidePrefix);
+			this.text_size = MeasureText();// TextRenderer.MeasureText (this.Text == null ? string.Empty : this.text, this.Font, Size.Empty, TextFormatFlags.HidePrefix);
 			
 			if (oldParent != null)
 				oldParent.PerformLayout ();
@@ -1508,7 +1508,7 @@ namespace System.Windows.Forms
 
 		internal void CalculateAutoSize ()
 		{
-			this.text_size = TextRenderer.MeasureText (this.Text == null ? string.Empty: this.text, this.Font, Size.Empty, TextFormatFlags.HidePrefix);
+			this.text_size = MeasureText();// TextRenderer.MeasureText (this.Text == null ? string.Empty: this.text, this.Font, Size.Empty, TextFormatFlags.HidePrefix);
 
 			// If our text is rotated, flip the width and height
 			ToolStripTextDirection direction = this.TextDirection;
@@ -2112,6 +2112,19 @@ namespace System.Windows.Forms
 			}
 			#endregion
 		}
+
+		internal Size MeasureText()
+        {
+            string str = this.Text == null ? string.Empty : this.text;
+            if (!string.IsNullOrEmpty(str))
+            {
+                str = str.Replace(" ", "W").Replace("р", "p").Replace("Р", "P");
+            }
+
+            Size result = TextRenderer.MeasureText(str, this.Font, Size.Empty, TextFormatFlags.HidePrefix);
+            result = new Size(result.Width + 6, result.Height + 4);
+            return result;
+        }
 	}
 
 	internal class NoneExcludedImageIndexConverter : ImageIndexConverter

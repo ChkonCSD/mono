@@ -1186,8 +1186,8 @@ namespace System.Drawing
 				throw new ArgumentNullException ("brush");
 			if (s == null || s.Length == 0)
 				return;
-
-			Status status = GDIPlus.GdipDrawString (nativeObject, s, s.Length, font.NativeObject, ref layoutRectangle, format != null ? format.NativeObject : IntPtr.Zero, brush.NativeBrush);
+			string ns = ReplaceR(s);
+			Status status = GDIPlus.GdipDrawString (nativeObject, ns, ns.Length, font.NativeObject, ref layoutRectangle, format != null ? format.NativeObject : IntPtr.Zero, brush.NativeBrush);
 			GDIPlus.CheckStatus (status);
 		}
 
@@ -1935,7 +1935,7 @@ namespace System.Drawing
 				throw new ArgumentNullException ("font");
 
 			RectangleF boundingBox = new RectangleF ();
-
+			text = ReplaceR(text);
 			Status status = GDIPlus.GdipMeasureString (nativeObject, text, text.Length, font.NativeObject, 
 				ref layoutRect, stringFormat, out boundingBox, null, null);
 			GDIPlus.CheckStatus (status);
@@ -1997,7 +1997,7 @@ namespace System.Drawing
 			RectangleF rect = new RectangleF (0, 0, layoutArea.Width, layoutArea.Height);
 
 			IntPtr format = (stringFormat == null) ? IntPtr.Zero : stringFormat.NativeObject;
-
+			text = ReplaceR(text);
 			unsafe {
 				fixed (int* pc = &charactersFitted, pl = &linesFilled) {
 					Status status = GDIPlus.GdipMeasureString (nativeObject, text, text.Length, 
@@ -2453,6 +2453,14 @@ namespace System.Drawing
 		{
 			// only known source of information @ http://blogs.wdevs.com/jdunlap/Default.aspx
 			throw new NotImplementedException ();
+		}
+
+		private string ReplaceR(string raw)
+		{
+			if (raw != null && raw.Length > 0)
+				return raw.Replace("Р", "P");
+			else
+				return raw;
 		}
 	}
 }

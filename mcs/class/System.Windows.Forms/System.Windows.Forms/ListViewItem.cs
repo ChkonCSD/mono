@@ -923,6 +923,8 @@ namespace System.Windows.Forms
 				return;
 			int item_ht;
 			Rectangle total;
+			try
+			{
 			Size text_size = owner.text_size;
 			
 			checkbox_rect = Rectangle.Empty;
@@ -1111,7 +1113,12 @@ namespace System.Windows.Forms
 				bounds.Size = item_rect.Size;
 				break;
 			}
-			
+			}
+			catch (Exception e)
+			{
+				//Console.WriteLine (e.Message);
+				//Console.WriteLine (e.StackTrace);
+			}
 		}
 		#endregion	// Private Internal Methods
 
