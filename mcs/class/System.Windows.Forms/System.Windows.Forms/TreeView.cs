@@ -138,7 +138,7 @@ namespace System.Windows.Forms {
 
 			string_format = new StringFormat ();
 			string_format.LineAlignment = StringAlignment.Center;
-			string_format.Alignment = StringAlignment.Center;
+			string_format.Alignment = StringAlignment.Near;
 
 			vbar.Visible = false;
 			hbar.Visible = false;
@@ -1575,7 +1575,8 @@ namespace System.Windows.Forms {
 
 		private void LabelTextChanged (object sender, EventArgs e)
 		{
-			int width = TextRenderer.MeasureTextInternal (edit_text_box.Text, edit_text_box.Font, false).Width + 4;
+			string text = string.IsNullOrEmpty(edit_text_box.Text) ? string.Empty : edit_text_box.Text.Replace(" ", "W").Replace("р", "p").Replace("Р", "P");
+			int width = TextRenderer.MeasureTextInternal (text, edit_text_box.Font, false).Width + 4 + 8;
 			edit_text_box.Width = width;
 
 			if (edit_args != null)
@@ -1633,7 +1634,8 @@ namespace System.Windows.Forms {
 			Font font = node.NodeFont;
 			if (node.NodeFont == null)
 				font = Font;
-			return (int)TextRenderer.MeasureString (node.Text, font, 0, string_format).Width + 3;
+			string text = string.IsNullOrEmpty(node.Text) ? string.Empty : node.Text.Replace(" ", "W").Replace("р", "p").Replace("Р", "P");
+			return (int)TextRenderer.MeasureString (text, font, 0, string_format).Width + 3 + 8;
 		}
 
 		private void DrawSelectionAndFocus(TreeNode node, Graphics dc, Rectangle r)

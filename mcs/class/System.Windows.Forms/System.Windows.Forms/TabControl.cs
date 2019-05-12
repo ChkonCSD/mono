@@ -1280,6 +1280,7 @@ namespace System.Windows.Forms {
 			} else {			
 				width = MeasureStringWidth (DeviceContext, page.Text, Font);
 				width += (Padding.X * 2) + 2;
+				width += 8;
 
 				if (ImageList != null && page.ImageIndex >= 0) {
 					width += ImageList.ImageSize.Width + ThemeEngine.Current.TabControlImagePadding.X;
@@ -1487,7 +1488,8 @@ namespace System.Windows.Forms {
 			format.SetMeasurableCharacterRanges(ranges);
 			format.FormatFlags = StringFormatFlags.NoClip;
 			format.FormatFlags |= StringFormatFlags.NoWrap;
-			regions = graphics.MeasureCharacterRanges(text + "I", font, rect, format);
+			string rtext = string.IsNullOrEmpty(text) ? string.Empty : text.Replace(" ", "I").Replace("р", "p").Replace("Р", "P");
+			regions = graphics.MeasureCharacterRanges(rtext + "I", font, rect, format);
 			rect = regions[0].GetBounds(graphics);
 
 			return (int)(rect.Width);

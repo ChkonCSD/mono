@@ -137,7 +137,7 @@ namespace System.Windows.Forms
 			this.right_to_left = RightToLeft.Inherit;
 			this.bounds.Size = this.DefaultSize;
 			this.text = text;
-			this.text_align = ContentAlignment.MiddleCenter;
+			this.text_align = ContentAlignment.MiddleLeft;// ContentAlignment.MiddleCenter;
 			this.text_direction = DefaultTextDirection;
 			this.text_image_relation = TextImageRelation.ImageBeforeText;
 			this.visible = true;
