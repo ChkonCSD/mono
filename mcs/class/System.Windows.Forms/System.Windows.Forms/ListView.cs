@@ -2070,16 +2070,7 @@ namespace System.Windows.Forms
 		{
 			if (virtual_mode)
 				return display_index; // no reordering in virtual mode.
-			try
-			{
 			return reordered_items_indices [display_index];
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine (e.Message);
-				Console.WriteLine (e.StackTrace);
-				return null;
-			}
 		}
 
 		internal ListViewItem GetItemAtDisplayIndex (int display_index)
@@ -2087,7 +2078,16 @@ namespace System.Windows.Forms
 			// in virtual mode there's no reordering at all.
 			if (virtual_mode)
 				return items [display_index];
+			try
+			{
 			return items [reordered_items_indices [display_index]];
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine (e.Message);
+				Console.WriteLine (e.StackTrace);
+				return null;
+			}
 		}
 
 		internal void SetItemAtDisplayIndex (int display_index, int index)
